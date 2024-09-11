@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">MyComposeApp</string>
+    <string name="super_cart">Super Cart</string>
+    <string name="date">Date</string>
 </resources>
