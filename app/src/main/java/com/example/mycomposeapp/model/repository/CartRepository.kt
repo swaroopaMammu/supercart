@@ -10,8 +10,8 @@ class CartRepository(private val cartDao: CartDao){
          cartDao.insertNewCartItem(item)
     }
 
-    suspend fun removeCartItem(item: CartItemEntity){
-        cartDao.removeCartItem(item)
+    suspend fun removeCartItem(id:Int){
+        cartDao.removeCartItem(id)
     }
 
     suspend fun removeDayCart(mDate: String){
@@ -29,6 +29,11 @@ class CartRepository(private val cartDao: CartDao){
         )
         cartDao.updateCartItem(newItem)
     }
+
+    fun getCartTotal(date:String) =
+        cartDao.getCartTotal(date)
+
+     fun getPurchasedTotal(date:String) = cartDao.getPurchasedTotal(date)
 
      fun getCartItems(mDate:String) = cartDao.getCartItems(mDate)
 

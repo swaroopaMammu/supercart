@@ -1,7 +1,6 @@
 package com.example.mycomposeapp.model.db.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
@@ -14,16 +13,22 @@ interface CartDao {
     @Insert
     suspend fun insertNewCartItem(item: CartItemEntity)
 
-    @Delete
-    fun removeCartItem(item: CartItemEntity)
+    @Query("DELETE FROM cart_table WHERE id = :mId")
+    suspend fun removeCartItem(mId:Int)
 
     @Query("DELETE FROM cart_table WHERE date = :mDate")
-    fun removeDayCart(mDate: String)
+    suspend fun removeDayCart(mDate: String)
 
     @Update
-    fun updateCartItem(item: CartItemEntity)
+    suspend fun updateCartItem(item: CartItemEntity)
 
     @Query("SELECT * FROM cart_table WHERE date = :mDate ")
     fun getCartItems(mDate: String): Flow<List<CartItemEntity>>
+
+    @Query("SELECT IFNULL(SUM(CAST(cash AS REAL)), 0) FROM cart_table WHERE date = :mDate")
+    fun getCartTotal(mDate: String): Flow<Double>
+
+    @Query("SELECT IFNULL(SUM(CAST(cash AS REAL)), 0) FROM cart_table WHERE date = :mDate AND isPurChanged = true")
+    fun getPurchasedTotal(mDate: String): Flow<Double>
 
 }

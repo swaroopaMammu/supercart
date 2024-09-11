@@ -1,9 +1,5 @@
 package com.example.mycomposeapp.utils
 
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -69,12 +65,3 @@ object CommonUtils {
     }
 }
 
-
-// Custom VisualTransformation for date formatting
-class DateVisualTransformation : VisualTransformation {
-    override fun filter(text: AnnotatedString): TransformedText {
-        val string = text.text
-        // Apply formatting here, e.g., add slashes
-        return TransformedText(AnnotatedString(string), OffsetMapping.Identity)
-    }
-}
