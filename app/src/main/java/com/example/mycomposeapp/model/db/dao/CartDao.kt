@@ -2,36 +2,26 @@ package com.example.mycomposeapp.model.db.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.mycomposeapp.model.db.entity.CartItemEntity
+import com.example.mycomposeapp.model.db.entity.MonthlyTable
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CartDao {
 
-    @Insert
-    suspend fun insertNewCartItem(item: CartItemEntity)
-
-    @Query("DELETE FROM cart_table WHERE id = :mId")
-    suspend fun removeCartItem(mId:Int)
-
-    @Query("DELETE FROM cart_table WHERE date = :mDate")
-    suspend fun removeDayCart(mDate: String)
+    // Insert Monthly Table
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMonthlyTable(monthlyTable: MonthlyTable)
 
     @Update
-    suspend fun updateCartItem(item: CartItemEntity)
+    suspend fun updateMonthlyTable(monthlyTable: MonthlyTable)
 
-    @Query("SELECT * FROM cart_table WHERE date = :mDate ")
-    fun getCartItems(mDate: String): Flow<List<CartItemEntity>>
+    @Query("SELECT COUNT(*) FROM monthly_cart WHERE mId = :id")
+    suspend fun isCartItemExists(id: String): Int
 
-    @Query("SELECT IFNULL(SUM(CAST(cash AS REAL)), 0) FROM cart_table WHERE date = :mDate")
-    fun getCartTotal(mDate: String): Flow<Double>
-
-    @Query("SELECT IFNULL(SUM(CAST(cash AS REAL)), 0) FROM cart_table WHERE date = :mDate AND isPurChanged = 1")
-    fun getPurchasedTotal(mDate: String): Flow<Double>
-
-    @Query("SELECT * FROM cart_table WHERE date LIKE '%' || :mDate")
-    fun getMonthlyCartItems(mDate: String): Flow<List<CartItemEntity>>
+    @Query("SELECT * FROM monthly_cart WHERE mId = :date")
+    fun getMonthlyCartItems(date: String): Flow<MonthlyTable>
 
 }

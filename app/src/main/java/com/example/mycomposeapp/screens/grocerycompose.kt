@@ -48,11 +48,9 @@ fun HomeScreenUi(viewModel: CartViewModel) {
     var cartAnalysisDialog by remember { mutableStateOf(false) }
     var dateAlert by remember { mutableStateOf(false) }
     var todayDate by remember { mutableStateOf(CommonUtils.getTodayDate()) }
+    var editItemDialog by remember { mutableStateOf(false) }
 
     viewModel.getCartItems(todayDate)
-    viewModel.getPurchasedTotal(todayDate)
-    viewModel.getCartTotal(todayDate)
-    viewModel.getMonthlyCartItems(todayDate)
 
     Scaffold { padding ->
         ConstraintLayout(
@@ -151,6 +149,11 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                     }
                 )
             }
+            if (editItemDialog) {
+                AddNewCartItem(isEdit = true, viewModel = viewModel, date = todayDate, model = dataModel) {
+                    editItemDialog = false
+                }
+            }
 
         }
     }
@@ -158,13 +161,10 @@ fun HomeScreenUi(viewModel: CartViewModel) {
 
 @Composable
 private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
-   val cartTotal by viewModel.cTotal.collectAsState(initial = 0)
-    val purchasedTotal by viewModel.pTotal.collectAsState(initial = 0)
-//    viewModel.addToDayCart(DailyCartEntity(
-//        id=0,
-//        purchasedTotal = purchasedTotal,
-//
-//    ))
+
+    val cartTotal = 0
+    val purchasedTotal = 0
+
              ConstraintLayout(modifier = modifier
                  .fillMaxWidth()
                  .background(color = Color.Gray)
@@ -226,7 +226,7 @@ private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
 
 @Composable
 private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String){
-    val gList by  viewModel.groceryMList.collectAsState(initial = emptyList())
+    val gList by  viewModel.groceryEntityList.collectAsState(initial = emptyList())
     val gMList : MutableList<GroceryModel> = mutableListOf()
     var editItemDialog by remember { mutableStateOf(false) }
     var dataModel by remember { mutableStateOf(GroceryModel(0,false,"","","")) }
@@ -251,10 +251,10 @@ private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String)
                 dataModel = item
                 editItemDialog = true
             },{
-                viewModel.removeCartItem(it.id)
+                viewModel.removeCartItem(it.id,date)
             },{
                 viewModel.updateCartItem(
-                    GroceryModel(
+                   item = GroceryModel(
                     id = item.id,
                     isPurChanged = it,
                     title = item.title,

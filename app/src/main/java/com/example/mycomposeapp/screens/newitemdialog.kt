@@ -126,7 +126,7 @@ fun AddNewCartItem(isEdit:Boolean,model: GroceryModel = GroceryModel(
                     }else{
                         if(isEdit){
                             viewModel.updateCartItem(
-                                GroceryModel(
+                               item =  GroceryModel(
                                     id = model.id,
                                     isPurChanged = model.isPurChanged,
                                     title = itemName,
@@ -137,19 +137,20 @@ fun AddNewCartItem(isEdit:Boolean,model: GroceryModel = GroceryModel(
                             )
                             onDismiss()
                         }else{
-                            val item = CartItemEntity(
-                                id = 0,
+                            val item = GroceryModel(
+                                id = kotlin.random.Random.nextInt(),
                                 isPurChanged = true,
                                 title = itemName,
                                 quantity = "$quantity $units",
                                 cash = price,
-                                date = date
                             )
-                            viewModel.addToCart(item)
+                            viewModel.updateMonthlyCartItems(date, item)
+
                             itemName = ""
                             quantity = ""
                             units = ""
                             price = ""
+                            onDismiss()
                         }
                     }
 
