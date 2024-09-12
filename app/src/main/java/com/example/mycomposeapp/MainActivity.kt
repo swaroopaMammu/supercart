@@ -20,8 +20,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val db = AppDatabase.getInstance(context = applicationContext)
-        val doa = db.cartDao()
-        val repository = CartRepository(doa)
+        val dayDao = db.cartDao()
+        val repository = CartRepository(dayDao)
         val viewModel = CartViewModel(repository)
         setContent {
             MyComposeAppTheme {

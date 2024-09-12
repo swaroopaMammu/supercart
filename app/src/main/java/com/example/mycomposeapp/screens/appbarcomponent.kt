@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mycomposeapp.R
 import com.example.mycomposeapp.utils.CommonUtils.formattingDate
+import com.example.mycomposeapp.viewmodel.CartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

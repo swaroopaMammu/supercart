@@ -37,4 +37,6 @@ class CartRepository(private val cartDao: CartDao){
 
      fun getCartItems(mDate:String) = cartDao.getCartItems(mDate)
 
+     fun getMonthlyCartItems(mDate:String) = cartDao.getMonthlyCartItems(mDate)
+
 }

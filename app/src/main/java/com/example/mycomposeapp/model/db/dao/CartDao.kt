@@ -28,7 +28,10 @@ interface CartDao {
     @Query("SELECT IFNULL(SUM(CAST(cash AS REAL)), 0) FROM cart_table WHERE date = :mDate")
     fun getCartTotal(mDate: String): Flow<Double>
 
-    @Query("SELECT IFNULL(SUM(CAST(cash AS REAL)), 0) FROM cart_table WHERE date = :mDate AND isPurChanged = true")
+    @Query("SELECT IFNULL(SUM(CAST(cash AS REAL)), 0) FROM cart_table WHERE date = :mDate AND isPurChanged = 1")
     fun getPurchasedTotal(mDate: String): Flow<Double>
+
+    @Query("SELECT * FROM cart_table WHERE date LIKE '%' || :mDate")
+    fun getMonthlyCartItems(mDate: String): Flow<List<CartItemEntity>>
 
 }

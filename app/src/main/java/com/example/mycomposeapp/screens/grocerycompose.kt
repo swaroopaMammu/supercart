@@ -52,6 +52,7 @@ fun HomeScreenUi(viewModel: CartViewModel) {
     viewModel.getCartItems(todayDate)
     viewModel.getPurchasedTotal(todayDate)
     viewModel.getCartTotal(todayDate)
+    viewModel.getMonthlyCartItems(todayDate)
 
     Scaffold { padding ->
         ConstraintLayout(
@@ -136,7 +137,7 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                 }
             }
             if (cartAnalysisDialog) {
-                CartAnalysis {
+                CartAnalysis(viewModel){
                     cartAnalysisDialog = false
                 }
             }
@@ -158,8 +159,12 @@ fun HomeScreenUi(viewModel: CartViewModel) {
 @Composable
 private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
    val cartTotal by viewModel.cTotal.collectAsState(initial = 0)
-   val purchasedTotal by viewModel.pTotal.collectAsState(initial = 0)
-
+    val purchasedTotal by viewModel.pTotal.collectAsState(initial = 0)
+//    viewModel.addToDayCart(DailyCartEntity(
+//        id=0,
+//        purchasedTotal = purchasedTotal,
+//
+//    ))
              ConstraintLayout(modifier = modifier
                  .fillMaxWidth()
                  .background(color = Color.Gray)

@@ -63,5 +63,13 @@ object CommonUtils {
 
         return dateFormat.format(currentDate)
     }
+
+    fun getMonthYearFromDate(inputDate: String): String {
+        val inputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("MM/yyyy", Locale.getDefault())
+        val date = inputFormat.parse(inputDate)
+
+        return outputFormat.format(date)
+    }
 }
 
