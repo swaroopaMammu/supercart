@@ -25,9 +25,9 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
 
     lateinit var monthData:MonthlyTable
 
-    val converters = Converters()
-    val dayList = mutableListOf<DayTable>()
-    val entityList = mutableListOf<CartItemEntity>()
+    private val converters = Converters()
+    private val dayList = mutableListOf<DayTable>()
+    private val entityList = mutableListOf<CartItemEntity>()
 
     fun updateCartItem(item: GroceryModel, date:String){
         viewModelScope.launch {
