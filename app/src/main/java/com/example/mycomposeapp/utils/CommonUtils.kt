@@ -64,6 +64,19 @@ object CommonUtils {
         return dateFormat.format(currentDate)
     }
 
+    fun getMonthFromDate(input:String):String{
+        if(input.isNotEmpty()){
+            val monthNames = arrayOf(
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            )
+            val parts = input.split("/")
+            val monthNumber = parts[0].toInt()
+            return monthNames[monthNumber - 1]
+        }
+        return ""
+    }
+
     fun getMonthYearFromDate(inputDate: String): String {
         val inputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val outputFormat = SimpleDateFormat("MM/yyyy", Locale.getDefault())

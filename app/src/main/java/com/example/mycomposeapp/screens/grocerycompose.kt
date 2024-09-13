@@ -34,6 +34,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.example.mycomposeapp.model.GroceryModel
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,9 +51,7 @@ fun HomeScreenUi(viewModel: CartViewModel) {
     var todayDate by remember { mutableStateOf(CommonUtils.getTodayDate()) }
     var isEdit by remember { mutableStateOf(false) }
     var dataModel by remember { mutableStateOf(GroceryModel(0,false,"","","")) }
-
     viewModel.getCartItems(todayDate)
-
     Scaffold { padding ->
         ConstraintLayout(
             modifier = Modifier
@@ -166,8 +165,9 @@ fun HomeScreenUi(viewModel: CartViewModel) {
 @Composable
 private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
 
-    val cartTotal = 0
-    val purchasedTotal = 0
+    val purchasedTotal by viewModel.purchasedTotal.collectAsState(initial = 0.0)
+    val cartTotal by  viewModel.cartTotal.collectAsState(initial = 0.0)
+
              ConstraintLayout(modifier = modifier
                  .fillMaxWidth()
                  .background(color = Color.Gray)
