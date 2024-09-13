@@ -23,8 +23,6 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
     private val _groceryEntityList = MutableStateFlow<List<CartItemEntity>>(emptyList())
     val groceryEntityList: StateFlow<List<CartItemEntity>> = _groceryEntityList.asStateFlow()
 
-    lateinit var monthData:MonthlyTable
-
     private val converters = Converters()
     private val dayList = mutableListOf<DayTable>()
     private val entityList = mutableListOf<CartItemEntity>()
