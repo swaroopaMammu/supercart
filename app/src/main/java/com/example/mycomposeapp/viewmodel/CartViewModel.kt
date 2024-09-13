@@ -9,11 +9,13 @@ import com.example.mycomposeapp.model.db.entity.MonthlyTable
 import com.example.mycomposeapp.model.repository.CartRepository
 import com.example.mycomposeapp.utils.CommonUtils
 import com.example.mycomposeapp.utils.Converters
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CartViewModel (val repository: CartRepository) : ViewModel() {
 
@@ -49,20 +51,20 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
             while (mIterator.hasNext()) {
                 val m = mIterator.next()
                 if (m.dId == date) {
-                    val updatedDayTable = DayTable(
-                        dId = m.dId,
-                        cartItemList = converters.fromCartItemList(dList),
-                        totalExp = 0.0
-                    )
-                    mIterator.remove() // Safe removal
-                    mList.add(updatedDayTable) // Add updated day table
+                    mIterator.remove()
                 }
             }
+            val updatedDayTable = DayTable(
+                dId = date,
+                cartItemList = converters.fromCartItemList(dList),
+                totalExp = 0.0
+            )
+            mList.add(updatedDayTable)
             repository.updateMonthlyTable(MonthlyTable(
                 mId = CommonUtils.getMonthYearFromDate(date),
-                mostBought = monthData.mostBought,
-                mostExpItem = monthData.mostExpItem,
-                mostExpDay = monthData.mostExpDay,
+                mostBought = "",
+                mostExpItem = "",
+                mostExpDay = "",
                 dayCartList = converters.fromDayTableList(mList)
             ))
         }
@@ -82,8 +84,9 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
                                 dList.addAll(converters.toCartItemList(it.cartItemList))
                             }
                         }
-                        monthData = cartItems
-                        _groceryEntityList.value = dList
+                        withContext(Dispatchers.Main) {
+                            _groceryEntityList.value = dList.toList()
+                        }
                     }
                 }
             }
@@ -127,20 +130,15 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
 
 
     fun removeCartItem(mId:Int,date: String){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
 
             val dIterator =dList.iterator()
             while(dIterator.hasNext()){
                 val d = dIterator.next()
                 if(d.id == mId){
-                    dList.remove(d)
+                    dIterator.remove()
                 }
             }
-//          dayList.forEach { d ->
-//              if(d.id == mId){
-//                  dayList.remove(d)
-//              }
-//          }
             val mIterator = mList.iterator()
             while(mIterator.hasNext()){
                 val m = mIterator.next()
@@ -150,57 +148,39 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
                         cartItemList = converters.fromCartItemList(dList),
                         totalExp = 0.0
                     )
-                    mList.remove(m)
+                    mIterator.remove()
                     mList.add(copyM)
                 }
             }
-//            monthList.forEach { m ->
-//              if(m.dId == date){
-//                 val copyM = DayTable(
-//                     dId = m.dId,
-//                     cartItemList = converters.fromCartItemList(dayList),
-//                     totalExp = 0.0
-//                 )
-//                  monthList.remove(m)
-//                  monthList.add(copyM)
-//              }
-//
-//          }
             repository.updateMonthlyTable(MonthlyTable(
                 mId = CommonUtils.getMonthYearFromDate(date),
-                mostBought = monthData.mostBought,
-                mostExpItem = monthData.mostExpItem,
-                mostExpDay = monthData.mostExpDay,
+                mostBought = "",
+                mostExpItem = "",
+                mostExpDay = "",
                 dayCartList = converters.fromDayTableList(mList)
             ))
+            _groceryEntityList.value = dList
         }
     }
 
     fun removeDayCart(date:String){
-        viewModelScope.launch {
-            viewModelScope.launch {
-//                monthList.forEach { m ->
-//                    if(m.dId == date){
-//                        monthList.remove(m)
-//                    }
-//
-//                }
+            viewModelScope.launch(Dispatchers.IO) {
+
                 val mIterator = mList.iterator()
                 while(mIterator.hasNext()){
                     val m = mIterator.next()
                     if(m.dId == date){
-                        mList.remove(m)
+                        mIterator.remove()
                     }
                 }
                 repository.updateMonthlyTable(MonthlyTable(
                     mId = CommonUtils.getMonthYearFromDate(date),
-                    mostBought = monthData.mostBought,
-                    mostExpItem = monthData.mostExpItem,
-                    mostExpDay = monthData.mostExpDay,
+                    mostBought = "",
+                    mostExpItem = "",
+                    mostExpDay = "",
                     dayCartList = converters.fromDayTableList(mList)
                 ))
             }
-        }
     }
 
 }

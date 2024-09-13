@@ -48,7 +48,8 @@ fun HomeScreenUi(viewModel: CartViewModel) {
     var cartAnalysisDialog by remember { mutableStateOf(false) }
     var dateAlert by remember { mutableStateOf(false) }
     var todayDate by remember { mutableStateOf(CommonUtils.getTodayDate()) }
-    var editItemDialog by remember { mutableStateOf(false) }
+    var isEdit by remember { mutableStateOf(false) }
+    var dataModel by remember { mutableStateOf(GroceryModel(0,false,"","","")) }
 
     viewModel.getCartItems(todayDate)
 
@@ -81,11 +82,20 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                     bottom.linkTo(button.top, margin = 20.dp)
                     height = Dimension.fillToConstraints
                 },
-                viewModel,
-                date = todayDate
+                viewModel= viewModel,
+                date = todayDate,
+                edit = {
+                    addNewItemDialog = true
+                    dataModel = it
+                    isEdit = true
+                },
+                delete = {
+                    viewModel.removeCartItem(it,todayDate)
+                }
             )
             OutlinedButton(onClick = {
                 addNewItemDialog = true
+                isEdit = false
             },
                 border = BorderStroke(2.dp, Color.Black),
                 shape = RectangleShape,
@@ -130,7 +140,7 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                 end.linkTo(parent.end, margin = 10.dp)
             },viewModel = viewModel )
             if (addNewItemDialog) {
-                AddNewCartItem(isEdit = false, viewModel = viewModel, date = todayDate) {
+                AddNewCartItem(isEdit = isEdit, viewModel = viewModel, date = todayDate, model = dataModel) {
                     addNewItemDialog = false
                 }
             }
@@ -145,14 +155,8 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                         dateAlert = false
                     }, {
                         todayDate = it
-                        viewModel.getCartItems(it)
-                    }
+                    },viewModel
                 )
-            }
-            if (editItemDialog) {
-                AddNewCartItem(isEdit = true, viewModel = viewModel, date = todayDate, model = dataModel) {
-                    editItemDialog = false
-                }
             }
 
         }
@@ -164,7 +168,6 @@ private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
 
     val cartTotal = 0
     val purchasedTotal = 0
-
              ConstraintLayout(modifier = modifier
                  .fillMaxWidth()
                  .background(color = Color.Gray)
@@ -225,12 +228,9 @@ private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
 
 
 @Composable
-private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String){
+private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String,edit:(model:GroceryModel)->Unit,delete:(id:Int)->Unit){
     val gList by  viewModel.groceryEntityList.collectAsState(initial = emptyList())
     val gMList : MutableList<GroceryModel> = mutableListOf()
-    var editItemDialog by remember { mutableStateOf(false) }
-    var dataModel by remember { mutableStateOf(GroceryModel(0,false,"","","")) }
-
     gList.forEach { m ->
         gMList.add(
             GroceryModel(
@@ -248,10 +248,9 @@ private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String)
         .padding(top = 10.dp)) {
         items(gMList) { item ->
             GroceryListItem(item,{
-                dataModel = item
-                editItemDialog = true
+                edit(item)
             },{
-                viewModel.removeCartItem(it.id,date)
+                delete(it.id)
             },{
                 viewModel.updateCartItem(
                    item = GroceryModel(
@@ -262,11 +261,6 @@ private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String)
                     cash = item.cash
                     ),date= date)
             })
-            if (editItemDialog) {
-                AddNewCartItem(isEdit = true, viewModel = viewModel, date = date, model = dataModel) {
-                    editItemDialog = false
-                }
-            }
         }
     }
 }

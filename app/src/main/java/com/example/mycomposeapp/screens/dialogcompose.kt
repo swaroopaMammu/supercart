@@ -16,13 +16,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.lifecycle.ViewModel
 import com.example.mycomposeapp.utils.CommonUtils.validateDate
+import com.example.mycomposeapp.viewmodel.CartViewModel
 
 @Composable
 fun DateInputDialog(
     openDialog: Boolean,
     onDismissRequest: () -> Unit,
-    onConfirm: (String) -> Unit
+    onConfirm: (String) -> Unit,
+    viewModel: CartViewModel
 ){
     var date  by remember { mutableStateOf(  "" ) }
     var error  by remember { mutableStateOf(  false ) }
@@ -50,6 +53,7 @@ fun DateInputDialog(
                     }
                     Button(onClick = {
                         if(validateDate(date).first){
+                            viewModel.getCartItems(date)
                             onConfirm(date)
                             onDismissRequest ()
                         }else{
