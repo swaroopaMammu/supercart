@@ -16,13 +16,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mycomposeapp.R
 import com.example.mycomposeapp.utils.CommonUtils.formattingDate
+import com.example.mycomposeapp.ui.theme.IconWhite
+import com.example.mycomposeapp.ui.theme.AppBarBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,18 +37,18 @@ fun AppBar(modifier: Modifier, cartClick:()->Unit, dateClick:()->Unit, date:Stri
             ) {
                 Text(text = stringResource(id = R.string.super_cart),
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFCF5F6FD),
+                    color = IconWhite,
                     fontSize = 26.sp,
                 )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF3F51B5)),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = AppBarBlue),
         actions = {
             IconButton(onClick = { cartClick() }) {
-                Icon(imageVector = Icons.Rounded.ShoppingCart, contentDescription = "shopping cart", tint = Color(0xFCF5F6FD))
+                Icon(imageVector = Icons.Rounded.ShoppingCart, contentDescription = stringResource(id = R.string.shopping_cart), tint = IconWhite)
             }
             IconButton(onClick = { dateClick() }) {
-                Icon(imageVector = Icons.Rounded.DateRange, contentDescription = "date filter", tint = Color(0xFCF5F6FD))
+                Icon(imageVector = Icons.Rounded.DateRange, contentDescription = stringResource(id = R.string.date_filter), tint = IconWhite)
             }
         },
         navigationIcon = {
@@ -57,11 +58,11 @@ fun AppBar(modifier: Modifier, cartClick:()->Unit, dateClick:()->Unit, date:Stri
             ) {
                 Text(text = result.first,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFCF5F6FD),
+                    color = IconWhite,
                     fontSize = 12.sp)
                 Text(text = result.second,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFCF5F6FD),
+                    color = IconWhite,
                     fontSize = 16.sp)
             }
         }

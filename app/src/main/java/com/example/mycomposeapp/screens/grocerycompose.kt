@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,89 +37,116 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import com.example.mycomposeapp.utils.CommonUtils
 import com.example.mycomposeapp.viewmodel.CartViewModel
+import com.example.mycomposeapp.R
+import com.example.mycomposeapp.utils.AppConstants
 
 
 @Composable
-fun HomeScreenUi(viewModel: CartViewModel){
+fun HomeScreenUi(viewModel: CartViewModel) {
 
     var addNewItemDialog by remember { mutableStateOf(false) }
     var cartAnalysisDialog by remember { mutableStateOf(false) }
-    var dateAlert by remember { mutableStateOf(false) }
+    var dateAlertDialog by remember { mutableStateOf(false) }
+
     var todayDate by remember { mutableStateOf(CommonUtils.getTodayDate()) }
 
     viewModel.getCartItems(todayDate)
 
-    Scaffold {
-        ConstraintLayout (
-            modifier = Modifier.fillMaxSize()
-        ){
-            val (appBar,list,button,bottomCard) = createRefs()
+    Scaffold { padding ->
+        ConstraintLayout(modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)) {
+
+            val (appBar, list, button,delete, bottomCard) = createRefs()
+
             AppBar(
-                modifier = Modifier.constrainAs(appBar){
+                modifier = Modifier.constrainAs(appBar) {
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
-             {
-                cartAnalysisDialog = true
-            },
-                {
-                    dateAlert = true
-                },
+                { cartAnalysisDialog = true },
+                { dateAlertDialog = true },
                 date = todayDate
-                )
+            )
             GroceryList(
-                modifier = Modifier.constrainAs(list){
+                modifier = Modifier.constrainAs(list) {
                     top.linkTo(appBar.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     bottom.linkTo(button.top, margin = 20.dp)
                     height = Dimension.fillToConstraints
                 },
-                viewModel
+                viewModel= viewModel,
+                date = todayDate
             )
             OutlinedButton(onClick = {
                 addNewItemDialog = true
-                                     },
-                border = BorderStroke(2.dp,Color.Black),
+            },
+                border = BorderStroke(2.dp, Color.Black),
                 shape = RectangleShape,
-                modifier = Modifier.constrainAs(button){
-                start.linkTo(parent.start, margin = 10.dp)
-                end.linkTo(parent.end,margin = 10.dp)
-                bottom.linkTo(bottomCard.top, margin = 15.dp)
-                width = Dimension.fillToConstraints
-            }
+                modifier = Modifier.constrainAs(button) {
+                    start.linkTo(parent.start, margin = 10.dp)
+                    end.linkTo(parent.end, margin = 10.dp)
+                    bottom.linkTo(delete.top, margin = 5.dp)
+                    width = Dimension.fillToConstraints
+                },
             ) {
-                Text(text = "Add new item to Cart",
+                Text(
+                    text = stringResource(id = R.string.add_new_item),
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
-                    fontSize = 16.sp)
+                    fontSize = 16.sp
+                )
             }
-            BottomCard(modifier = Modifier.constrainAs(bottomCard){
+
+            OutlinedButton(onClick = {
+                 viewModel.removeDayCart(todayDate)
+            },
+                border = BorderStroke(2.dp, Color.Black),
+                shape = RectangleShape,
+                modifier = Modifier.constrainAs(delete) {
+                    start.linkTo(parent.start, margin = 10.dp)
+                    end.linkTo(parent.end, margin = 10.dp)
+                    bottom.linkTo(bottomCard.top, margin = 10.dp)
+                    width = Dimension.fillToConstraints
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.empty_cart),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    fontSize = 14.sp
+                )
+            }
+            BottomCard(modifier = Modifier.constrainAs(bottomCard) {
                 bottom.linkTo(parent.bottom, margin = 20.dp)
                 start.linkTo(parent.start, margin = 10.dp)
-                end.linkTo(parent.end,margin = 10.dp)
-            })
-            if (addNewItemDialog){
-                    AddNewCartItem(isEdit = false,viewModel= viewModel, date = todayDate){
-                        addNewItemDialog = false
-                    }
+                end.linkTo(parent.end, margin = 10.dp)
+            },viewModel = viewModel )
+
+            if (addNewItemDialog) {
+                AddNewCartItem(todayDate,isEdit = false,
+                    viewModel = viewModel) {
+                    addNewItemDialog = false
+                }
             }
-            if (cartAnalysisDialog){
-                    CartAnalysis{
-                        cartAnalysisDialog = false
-                    }
+            if (cartAnalysisDialog) {
+                CartAnalysis(viewModel){
+                    cartAnalysisDialog = false
+                }
             }
-            if(dateAlert){
+            if (dateAlertDialog) {
                 DateInputDialog(
-                    true,{
-                        dateAlert = false
-                    },{
+                    true, {
+                        dateAlertDialog = false
+                    }, {
                         todayDate = it
-                        viewModel.getCartItems(it)
-                    }
+                    },viewModel
                 )
             }
 
@@ -127,13 +155,17 @@ fun HomeScreenUi(viewModel: CartViewModel){
 }
 
 @Composable
-private fun BottomCard(modifier:Modifier){
+private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
+
+    val purchasedTotal by viewModel.purchasedTotal.collectAsState(initial = AppConstants.DEFAULT_DOUBLE)
+    val cartTotal by  viewModel.cartTotal.collectAsState(initial = AppConstants.DEFAULT_DOUBLE)
+
              ConstraintLayout(modifier = modifier
                  .fillMaxWidth()
                  .background(color = Color.Gray)
                  .padding(10.dp)) {
-                 val (purchased,pTotal,cart,cartTotal,divider) = createRefs()
-                 Text(text = "Purchased total",
+                 val (purchased,pTotal,cart,cTotal,divider) = createRefs()
+                 Text(text = stringResource(id = R.string.purchased_total),
                      fontWeight = FontWeight.Bold,
                      fontSize = 18.sp,
                      color = Color.White ,
@@ -143,13 +175,13 @@ private fun BottomCard(modifier:Modifier){
                          end.linkTo(pTotal.end)
                          width = Dimension.fillToConstraints
                      })
-                 Text(text = "1000Rs",
+                 Text(text = "$purchasedTotal",
                      fontWeight = FontWeight.Bold,
                      fontSize = 12.sp,
                      color = Color.White ,
                      modifier = Modifier.constrainAs(pTotal){
                          end.linkTo(parent.end,margin = 10.dp)
-                         bottom.linkTo(cartTotal.top,margin = 10.dp)
+                         bottom.linkTo(cTotal.top,margin = 10.dp)
                      })
                  HorizontalDivider(
                      modifier = Modifier
@@ -164,21 +196,21 @@ private fun BottomCard(modifier:Modifier){
                      thickness = 2.dp,
                      color = Color.White
                  )
-                 Text(text = "Cart total",
+                 Text(text = stringResource(id = R.string.cart_total),
                      fontWeight = FontWeight.Bold,
                      fontSize = 24.sp,
                      color = Color.White ,
                      modifier = Modifier.constrainAs(cart){
                          start.linkTo(parent.start,margin = 10.dp)
                          bottom.linkTo(parent.bottom)
-                         end.linkTo(cartTotal.end)
+                         end.linkTo(cTotal.end)
                          width = Dimension.fillToConstraints
                      })
-                 Text(text = "17080Rs",
+                 Text(text = "$cartTotal",
                      fontWeight = FontWeight.Bold,
                      fontSize = 12.sp,
                      color = Color.White ,
-                     modifier = Modifier.constrainAs(cartTotal){
+                     modifier = Modifier.constrainAs(cTotal){
                          end.linkTo(parent.end,margin = 10.dp)
                          bottom.linkTo(parent.bottom)
 
@@ -188,10 +220,10 @@ private fun BottomCard(modifier:Modifier){
 
 
 @Composable
-private fun GroceryList(modifier: Modifier,viewModel: CartViewModel){
-    val gList by  viewModel.groceryMList.collectAsState(initial = emptyList())
+private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String){
+    val gList by  viewModel.groceryEntityList.collectAsState(initial = emptyList())
+    var addNewItemDialog by remember { mutableStateOf(false) }
     val gMList : MutableList<GroceryModel> = mutableListOf()
-
     gList.forEach { m ->
         gMList.add(
             GroceryModel(
@@ -208,33 +240,50 @@ private fun GroceryList(modifier: Modifier,viewModel: CartViewModel){
         .fillMaxWidth()
         .padding(top = 10.dp)) {
         items(gMList) { item ->
-            GroceryListItem(item)
+            GroceryListItem(item,{ addNewItemDialog = true },
+                { viewModel.removeCartItem(it.id,date) },
+                {
+                    viewModel.updateCartItem(
+                        item = GroceryModel(
+                            id = item.id,
+                            isPurChanged = it,
+                            title = item.title,
+                            quantity = item.quantity,
+                            cash = item.cash
+                        ),
+                        date = date
+                    )
+                }
+            )
+            if (addNewItemDialog) {
+                AddNewCartItem(date = date,isEdit = true, viewModel = viewModel, model = item) {
+                    addNewItemDialog = false
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun GroceryListItem(data:GroceryModel){
+private fun GroceryListItem(data:GroceryModel,oneEditClick : ()->Unit,
+                            onDelete:(data:GroceryModel)->Unit,onCheckChanged:(flag:Boolean)->Unit){
+    var handleCheck by remember { mutableStateOf(data.isPurChanged) }
+
     Row(modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Absolute.SpaceAround) {
-        Checkbox(checked = data.isPurChanged, onCheckedChange = {
+        Checkbox(checked = handleCheck, onCheckedChange = {
+            handleCheck = it
+            onCheckChanged(handleCheck)
         })
-            Text(text = data.title,
-                modifier = Modifier.width(100.dp),
-                fontWeight = FontWeight.SemiBold)
-            Text(text = data.quantity,
-                modifier = Modifier.width(60.dp),
-                fontWeight = FontWeight.W300)
-            Text(text = data.cash,
-                modifier = Modifier.width(60.dp),
-                fontWeight = FontWeight.W300,
-            )
-        IconButton(onClick = { }) {
-            Icon(imageVector = Icons.Rounded.Edit, contentDescription = "Edit")
+            Text(text = data.title, modifier = Modifier.width(100.dp), fontWeight = FontWeight.SemiBold)
+            Text(text = data.quantity, modifier = Modifier.width(60.dp), fontWeight = FontWeight.W300)
+            Text(text = "${data.cash} ${stringResource(id = R.string.rs_symbol)}", modifier = Modifier.width(60.dp), fontWeight = FontWeight.W300,)
+        IconButton(onClick = { oneEditClick() }) {
+            Icon(imageVector = Icons.Rounded.Edit, contentDescription = stringResource(id = R.string.edit))
         }
-        IconButton(onClick = { }) {
-            Icon(imageVector = Icons.Rounded.Delete, contentDescription = "Delete")
+        IconButton(onClick = { onDelete(data)}) {
+            Icon(imageVector = Icons.Rounded.Delete, contentDescription = stringResource(id = R.string.delete))
         }
     }
 }

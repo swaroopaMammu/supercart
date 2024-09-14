@@ -5,9 +5,9 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.mycomposeapp.model.db.dao.CartDao
-import com.example.mycomposeapp.model.db.entity.CartItemEntity
+import com.example.mycomposeapp.model.db.entity.MonthlyTable
 
-@Database(entities = [CartItemEntity::class], version = 1, exportSchema = false)
+@Database(entities = [MonthlyTable::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase(){
 
     abstract fun cartDao():CartDao
@@ -22,7 +22,7 @@ abstract class AppDatabase : RoomDatabase(){
                     instance = Room.databaseBuilder(
                         context,
                         AppDatabase::class.java,
-                        "super_cart").build()
+                        "super_cart_new").build()
                     }
                     Instance = instance
                 return instance

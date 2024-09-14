@@ -1,35 +1,20 @@
 package com.example.mycomposeapp.model.repository
 
-import com.example.mycomposeapp.model.GroceryModel
 import com.example.mycomposeapp.model.db.dao.CartDao
-import com.example.mycomposeapp.model.db.entity.CartItemEntity
+import com.example.mycomposeapp.model.db.entity.MonthlyTable
 
 class CartRepository(private val cartDao: CartDao){
 
-    suspend fun insertNewCartItem(item: CartItemEntity){
-         cartDao.insertNewCartItem(item)
+    suspend fun insertMonthlyTable(item: MonthlyTable){
+         cartDao.insertMonthlyTable(item)
     }
 
-    suspend fun removeCartItem(item: CartItemEntity){
-        cartDao.removeCartItem(item)
+    suspend fun updateMonthlyTable(item: MonthlyTable){
+        cartDao.updateMonthlyTable(item)
     }
 
-    suspend fun removeDayCart(mDate: String){
-        cartDao.removeDayCart(mDate)
-    }
+    suspend fun isCartItemExists(id:String) = cartDao.isCartItemExists(id)
 
-    suspend fun updateCartItem(item: GroceryModel,date:String){
-        val newItem = CartItemEntity(
-            id = item.id,
-            title = item.title,
-            cash = item.cash,
-            isPurChanged = item.isPurChanged,
-            quantity = item.quantity,
-            date = date
-        )
-        cartDao.updateCartItem(newItem)
-    }
-
-     fun getCartItems(mDate:String) = cartDao.getCartItems(mDate)
+    fun getMonthlyCartItems(date:String) = cartDao.getMonthlyCartItems(date)
 
 }

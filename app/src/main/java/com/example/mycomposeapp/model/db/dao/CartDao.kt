@@ -1,29 +1,26 @@
 package com.example.mycomposeapp.model.db.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.mycomposeapp.model.db.entity.CartItemEntity
+import com.example.mycomposeapp.model.db.entity.MonthlyTable
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CartDao {
 
-    @Insert
-    suspend fun insertNewCartItem(item: CartItemEntity)
-
-    @Delete
-    fun removeCartItem(item: CartItemEntity)
-
-    @Query("DELETE FROM cart_table WHERE date = :mDate")
-    fun removeDayCart(mDate: String)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMonthlyTable(monthlyTable: MonthlyTable)
 
     @Update
-    fun updateCartItem(item: CartItemEntity)
+    suspend fun updateMonthlyTable(monthlyTable: MonthlyTable)
 
-    @Query("SELECT * FROM cart_table WHERE date = :mDate ")
-    fun getCartItems(mDate: String): Flow<List<CartItemEntity>>
+    @Query("SELECT COUNT(*) FROM monthly_cart WHERE mId = :id")
+    suspend fun isCartItemExists(id: String): Int
+
+    @Query("SELECT * FROM monthly_cart WHERE mId = :date")
+    fun getMonthlyCartItems(date: String): Flow<MonthlyTable>
 
 }
