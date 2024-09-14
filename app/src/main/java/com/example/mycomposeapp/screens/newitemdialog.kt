@@ -32,16 +32,17 @@ import com.example.mycomposeapp.model.GroceryModel
 import com.example.mycomposeapp.utils.CommonUtils
 import com.example.mycomposeapp.viewmodel.CartViewModel
 import com.example.mycomposeapp.R
+import com.example.mycomposeapp.utils.AppConstants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddNewCartItem(isEdit:Boolean,model: GroceryModel = GroceryModel(),viewModel: CartViewModel,onDismiss:()->Unit){
+fun AddNewCartItem(date:String,isEdit:Boolean,model: GroceryModel = GroceryModel(),viewModel: CartViewModel,onDismiss:()->Unit){
 
-    val quality =  CommonUtils.splitBySeparator(model.quantity," ")
-    var itemName  by remember { mutableStateOf( if (isEdit) model.title else "" ) }
-    var quantity by remember { mutableStateOf(if (isEdit) quality.first else "") }
-    var units by remember { mutableStateOf(if (isEdit) quality.second else "") }
-    var price by remember { mutableStateOf( if(isEdit) model.cash else "") }
+    val quality =  CommonUtils.splitBySeparator(model.quantity,AppConstants.SPACE)
+    var itemName  by remember { mutableStateOf( if (isEdit) model.title else AppConstants.EMPTY ) }
+    var quantity by remember { mutableStateOf(if (isEdit) quality.first else AppConstants.EMPTY) }
+    var units by remember { mutableStateOf(if (isEdit) quality.second else AppConstants.EMPTY) }
+    var price by remember { mutableStateOf( if(isEdit) model.cash else AppConstants.EMPTY) }
     var error by remember { mutableStateOf( false) }
     var headline :String
     var buttonText :String
@@ -139,10 +140,10 @@ fun AddNewCartItem(isEdit:Boolean,model: GroceryModel = GroceryModel(),viewModel
                                     quantity = "$quantity $units",
                                     cash = price
                                 ),
-                                date = viewModel.todayDate
+                                date = date
                             )
                         }else{
-                            viewModel.updateMonthlyCartItems(viewModel.todayDate, GroceryModel(
+                            viewModel.updateMonthlyCartItems(date, GroceryModel(
                                 id = kotlin.random.Random.nextInt(),
                                 isPurChanged = true,
                                 title = itemName,

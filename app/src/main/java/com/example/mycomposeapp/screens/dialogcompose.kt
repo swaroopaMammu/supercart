@@ -16,9 +16,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.lifecycle.ViewModel
+import androidx.compose.ui.res.stringResource
+import com.example.mycomposeapp.utils.AppConstants
 import com.example.mycomposeapp.utils.CommonUtils.validateDate
 import com.example.mycomposeapp.viewmodel.CartViewModel
+import com.example.mycomposeapp.R
 
 @Composable
 fun DateInputDialog(
@@ -27,25 +29,29 @@ fun DateInputDialog(
     onConfirm: (String) -> Unit,
     viewModel: CartViewModel
 ){
-    var date  by remember { mutableStateOf(  "" ) }
+    var date  by remember { mutableStateOf(  AppConstants.EMPTY ) }
     var error  by remember { mutableStateOf(  false ) }
+
     if(openDialog){
         AlertDialog(onDismissRequest = {
             onDismissRequest ()
         },
             confirmButton = {  },
             title = {
-                Text("Enter the date")
+                Text(stringResource(id = R.string.enter_the_date))
             },
             text = {
                 Column {
                     Row(horizontalArrangement = Arrangement.SpaceEvenly,
                         modifier = Modifier.fillMaxWidth()) {
-                        OutlinedTextField(value = date, onValueChange = {
-                            date = it
-                        }, label = { Text(text = "Date") },
-                            placeholder = { Text("Enter the date in dd/mm/yyyy") },
-                            isError =  error,
+                        OutlinedTextField(
+                            value = date,
+                            onValueChange = {
+                                date = it
+                            },
+                            label = { Text(text = stringResource(id = R.string.date)) },
+                            placeholder = { Text(stringResource(id = R.string.enter_the_date_in)) },
+                            isError = error,
                         )
                     }
                     if(error){
@@ -60,7 +66,7 @@ fun DateInputDialog(
                             error = true
                         }
                     }, shape = RectangleShape) {
-                        Text("DONE")
+                        Text(stringResource(id = R.string.done))
                     }
                 }
             }

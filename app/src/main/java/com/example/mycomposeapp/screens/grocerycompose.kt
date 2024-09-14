@@ -34,12 +34,14 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.example.mycomposeapp.model.GroceryModel
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import com.example.mycomposeapp.utils.CommonUtils
 import com.example.mycomposeapp.viewmodel.CartViewModel
+import com.example.mycomposeapp.R
+import com.example.mycomposeapp.utils.AppConstants
 
 
 @Composable
@@ -47,30 +49,27 @@ fun HomeScreenUi(viewModel: CartViewModel) {
 
     var addNewItemDialog by remember { mutableStateOf(false) }
     var cartAnalysisDialog by remember { mutableStateOf(false) }
-    var dateAlert by remember { mutableStateOf(false) }
+    var dateAlertDialog by remember { mutableStateOf(false) }
+
     var todayDate by remember { mutableStateOf(CommonUtils.getTodayDate()) }
-    var isEdit by remember { mutableStateOf(false) }
-    var dataModel by remember { mutableStateOf(GroceryModel()) }
+
     viewModel.getCartItems(todayDate)
+
     Scaffold { padding ->
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
+        ConstraintLayout(modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)) {
+
             val (appBar, list, button,delete, bottomCard) = createRefs()
+
             AppBar(
                 modifier = Modifier.constrainAs(appBar) {
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
-                {
-                    cartAnalysisDialog = true
-                },
-                {
-                    dateAlert = true
-                },
+                { cartAnalysisDialog = true },
+                { dateAlertDialog = true },
                 date = todayDate
             )
             GroceryList(
@@ -82,19 +81,10 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                     height = Dimension.fillToConstraints
                 },
                 viewModel= viewModel,
-                date = todayDate,
-                edit = {
-                    addNewItemDialog = true
-                    dataModel = it
-                    isEdit = true
-                },
-                delete = {
-                    viewModel.removeCartItem(it,todayDate)
-                }
+                date = todayDate
             )
             OutlinedButton(onClick = {
                 addNewItemDialog = true
-                isEdit = false
             },
                 border = BorderStroke(2.dp, Color.Black),
                 shape = RectangleShape,
@@ -106,7 +96,7 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                 },
             ) {
                 Text(
-                    text = "Add new item to Cart",
+                    text = stringResource(id = R.string.add_new_item),
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
                     fontSize = 16.sp
@@ -127,7 +117,7 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
             ) {
                 Text(
-                    text = "Empty today's cart",
+                    text = stringResource(id = R.string.empty_cart),
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
                     fontSize = 14.sp
@@ -138,11 +128,10 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                 start.linkTo(parent.start, margin = 10.dp)
                 end.linkTo(parent.end, margin = 10.dp)
             },viewModel = viewModel )
+
             if (addNewItemDialog) {
-                viewModel.todayDate = todayDate
-                AddNewCartItem(isEdit = isEdit,
-                    viewModel = viewModel,
-                    model = dataModel) {
+                AddNewCartItem(todayDate,isEdit = false,
+                    viewModel = viewModel) {
                     addNewItemDialog = false
                 }
             }
@@ -151,10 +140,10 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                     cartAnalysisDialog = false
                 }
             }
-            if (dateAlert) {
+            if (dateAlertDialog) {
                 DateInputDialog(
                     true, {
-                        dateAlert = false
+                        dateAlertDialog = false
                     }, {
                         todayDate = it
                     },viewModel
@@ -168,15 +157,15 @@ fun HomeScreenUi(viewModel: CartViewModel) {
 @Composable
 private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
 
-    val purchasedTotal by viewModel.purchasedTotal.collectAsState(initial = 0.0)
-    val cartTotal by  viewModel.cartTotal.collectAsState(initial = 0.0)
+    val purchasedTotal by viewModel.purchasedTotal.collectAsState(initial = AppConstants.DEFAULT_DOUBLE)
+    val cartTotal by  viewModel.cartTotal.collectAsState(initial = AppConstants.DEFAULT_DOUBLE)
 
              ConstraintLayout(modifier = modifier
                  .fillMaxWidth()
                  .background(color = Color.Gray)
                  .padding(10.dp)) {
                  val (purchased,pTotal,cart,cTotal,divider) = createRefs()
-                 Text(text = "Purchased total",
+                 Text(text = stringResource(id = R.string.purchased_total),
                      fontWeight = FontWeight.Bold,
                      fontSize = 18.sp,
                      color = Color.White ,
@@ -207,7 +196,7 @@ private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
                      thickness = 2.dp,
                      color = Color.White
                  )
-                 Text(text = "Cart total",
+                 Text(text = stringResource(id = R.string.cart_total),
                      fontWeight = FontWeight.Bold,
                      fontSize = 24.sp,
                      color = Color.White ,
@@ -231,8 +220,9 @@ private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
 
 
 @Composable
-private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String,edit:(model:GroceryModel)->Unit,delete:(id:Int)->Unit){
+private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String){
     val gList by  viewModel.groceryEntityList.collectAsState(initial = emptyList())
+    var addNewItemDialog by remember { mutableStateOf(false) }
     val gMList : MutableList<GroceryModel> = mutableListOf()
     gList.forEach { m ->
         gMList.add(
@@ -250,20 +240,26 @@ private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String,
         .fillMaxWidth()
         .padding(top = 10.dp)) {
         items(gMList) { item ->
-            GroceryListItem(item,{
-                edit(item)
-            },{
-                delete(it.id)
-            },{
-                viewModel.updateCartItem(
-                   item = GroceryModel(
-                    id = item.id,
-                    isPurChanged = it,
-                    title = item.title,
-                    quantity = item.quantity,
-                    cash = item.cash
-                    ),date= date)
-            })
+            GroceryListItem(item,{ addNewItemDialog = true },
+                { viewModel.removeCartItem(it.id,date) },
+                {
+                    viewModel.updateCartItem(
+                        item = GroceryModel(
+                            id = item.id,
+                            isPurChanged = it,
+                            title = item.title,
+                            quantity = item.quantity,
+                            cash = item.cash
+                        ),
+                        date = date
+                    )
+                }
+            )
+            if (addNewItemDialog) {
+                AddNewCartItem(date = date,isEdit = true, viewModel = viewModel, model = item) {
+                    addNewItemDialog = false
+                }
+            }
         }
     }
 }
@@ -272,6 +268,7 @@ private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String,
 private fun GroceryListItem(data:GroceryModel,oneEditClick : ()->Unit,
                             onDelete:(data:GroceryModel)->Unit,onCheckChanged:(flag:Boolean)->Unit){
     var handleCheck by remember { mutableStateOf(data.isPurChanged) }
+
     Row(modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Absolute.SpaceAround) {
@@ -279,23 +276,14 @@ private fun GroceryListItem(data:GroceryModel,oneEditClick : ()->Unit,
             handleCheck = it
             onCheckChanged(handleCheck)
         })
-            Text(text = data.title,
-                modifier = Modifier.width(100.dp),
-                fontWeight = FontWeight.SemiBold)
-            Text(text = data.quantity,
-                modifier = Modifier.width(60.dp),
-                fontWeight = FontWeight.W300)
-            Text(text = "${data.cash} ₹",
-                modifier = Modifier.width(60.dp),
-                fontWeight = FontWeight.W300,
-            )
-        IconButton(onClick = {
-            oneEditClick()
-        }) {
-            Icon(imageVector = Icons.Rounded.Edit, contentDescription = "Edit")
+            Text(text = data.title, modifier = Modifier.width(100.dp), fontWeight = FontWeight.SemiBold)
+            Text(text = data.quantity, modifier = Modifier.width(60.dp), fontWeight = FontWeight.W300)
+            Text(text = "${data.cash} ${stringResource(id = R.string.rs_symbol)}", modifier = Modifier.width(60.dp), fontWeight = FontWeight.W300,)
+        IconButton(onClick = { oneEditClick() }) {
+            Icon(imageVector = Icons.Rounded.Edit, contentDescription = stringResource(id = R.string.edit))
         }
         IconButton(onClick = { onDelete(data)}) {
-            Icon(imageVector = Icons.Rounded.Delete, contentDescription = "Delete")
+            Icon(imageVector = Icons.Rounded.Delete, contentDescription = stringResource(id = R.string.delete))
         }
     }
 }

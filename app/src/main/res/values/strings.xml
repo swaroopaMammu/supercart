@@ -13,4 +13,23 @@
     <string name="no_field_can_be_left">no field can be left blank</string>
     <string name="update_the_row">UPDATE THE ROW</string>
     <string name="add_to_cart">ADD TO CART</string>
+    <string name="cart_monthly_analysis_of">Cart Monthly analysis of</string>
+    <string name="monthly_expenses">Monthly expenses</string>
+    <string name="rs">Rs</string>
+    <string name="most_exp_day">Most Expensive Day</string>
+    <string name="most_exp_item">Most Expensive item</string>
+    <string name="most_bought_item">Most bought item</string>
+    <string name="enter_the_date">Enter the date</string>
+    <string name="date">Date</string>
+    <string name="done">DONE</string>
+    <string name="enter_the_date_in">Enter the date in dd/mm/yyyy</string>
+    <string name="add_new_item">Add new item to Cart</string>
+    <string name="empty_cart">Empty today\'s cart</string>
+    <string name="shopping_cart">shopping cart</string>
+    <string name="date_filter">date filter</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="rs_symbol">₹</string>
+    <string name="cart_total">Cart total</string>
+    <string name="purchased_total">Purchased total</string>
 </resources>

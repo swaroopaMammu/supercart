@@ -7,6 +7,7 @@ import com.example.mycomposeapp.model.CartItemEntity
 import com.example.mycomposeapp.model.DayTable
 import com.example.mycomposeapp.model.db.entity.MonthlyTable
 import com.example.mycomposeapp.model.repository.CartRepository
+import com.example.mycomposeapp.utils.AppConstants
 import com.example.mycomposeapp.utils.CommonUtils
 import com.example.mycomposeapp.utils.Converters
 import kotlinx.coroutines.Dispatchers
@@ -17,26 +18,25 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class CartViewModel (val repository: CartRepository) : ViewModel() {
+class CartViewModel (private val repository: CartRepository) : ViewModel() {
 
 
     private val _groceryEntityList = MutableStateFlow<List<CartItemEntity>>(emptyList())
     val groceryEntityList: StateFlow<List<CartItemEntity>> = _groceryEntityList.asStateFlow()
 
-    var cartTotal = MutableStateFlow(0.0)
-    var purchasedTotal = MutableStateFlow(0.0)
-    var totalMonthlyExp = MutableStateFlow(0.0)
-    var monthlyData = MutableStateFlow(
-        MonthlyTable(
-        mostBought = "", mostExpDay = "", mostExpItem = "", mId = "", dayCartList = ""
-    )
-    )
+    private val _cartTotal = MutableStateFlow(0.0)
+    val cartTotal: StateFlow<Double> = _cartTotal.asStateFlow()
+
+    private val _purchasedTotal = MutableStateFlow(0.0)
+    val purchasedTotal: StateFlow<Double> = _purchasedTotal.asStateFlow()
+
+    private val _monthlyData = MutableStateFlow(MonthlyTable())
+    val monthlyData: StateFlow<MonthlyTable> = _monthlyData.asStateFlow()
 
     private val converters = Converters()
     private val dayList = mutableListOf<DayTable>()
     private val entityList = mutableListOf<CartItemEntity>()
 
-    var todayDate = ""
 
     fun updateCartItem(item: GroceryModel, date:String){
         viewModelScope.launch {
@@ -98,11 +98,11 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
                         }
                     }
                     withContext(Dispatchers.Main) {
+                        val total = getTotalPurchased()
                         _groceryEntityList.value = entityList.toList()
-                        cartTotal.value = getTotalPurchased().second
-                        purchasedTotal.value = getTotalPurchased().first
-                        totalMonthlyExp.value = getTotalMonthlyExp()
-                        monthlyData.value = cartItems
+                        _cartTotal.value = total.second
+                        _purchasedTotal.value = total.first
+                        _monthlyData.value = cartItems
                     }
                 }
             }
@@ -112,7 +112,7 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
         val date1 = CommonUtils.getMonthYearFromDate(date)
         viewModelScope.launch {
             val count = repository.isCartItemExists(date1)
-            if(count != 0){
+            if(count != AppConstants.DEFAULT_INT){
                 updateCartItem(item = model,date=date)
             }else{
 
@@ -137,7 +137,8 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
                     mostBought = getMostBought(),
                     mostExpItem = getMonthlyMostExpItem(),
                     mostExpDay = getMostExpDay(),
-                    dayCartList = converters.fromDayTableList(dayList)
+                    dayCartList = converters.fromDayTableList(dayList),
+                    totalExpense = getTotalMonthlyExp()
                 )
                 repository.insertMonthlyTable(data)
             }
@@ -165,7 +166,8 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
                 mostBought = getMostBought(updatedDayList),
                 mostExpItem = getMonthlyMostExpItem(updatedDayList),
                 mostExpDay = getMostExpDay(updatedDayList),
-                dayCartList = converters.fromDayTableList(updatedDayList)
+                dayCartList = converters.fromDayTableList(updatedDayList),
+                totalExpense = getTotalMonthlyExp()
             )
             )
         }
@@ -187,15 +189,16 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
                     mostBought = getMostBought(),
                     mostExpItem = getMonthlyMostExpItem(),
                     mostExpDay = getMostExpDay(),
-                    dayCartList = converters.fromDayTableList(dayList)
+                    dayCartList = converters.fromDayTableList(dayList),
+                    totalExpense = getTotalMonthlyExp()
                 )
                 )
             }
     }
 
-     fun getTotalPurchased():Pair<Double,Double>{
-        var totalPurchased = 0.0
-        var totalCarted = 0.0
+     private fun getTotalPurchased():Pair<Double,Double>{
+        var totalPurchased = AppConstants.DEFAULT_DOUBLE
+        var totalCarted = AppConstants.DEFAULT_DOUBLE
         entityList.forEach {
             if(it.isPurChanged){
                 totalPurchased += it.cash.toDouble()
@@ -205,8 +208,8 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
         return Pair(totalPurchased,totalCarted)
     }
 
-    fun getTotalMonthlyExp(list:List<DayTable> = dayList):Double{
-        var amount = 0.0
+    private fun getTotalMonthlyExp(list:List<DayTable> = dayList):Double{
+        var amount = AppConstants.DEFAULT_DOUBLE
         list.forEach {
             amount += it.totalExp
         }
@@ -214,37 +217,39 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
     }
 
     private fun getMostExpItem():String{
-        var amount = 0.0
-        var i = 0
+        var amount = AppConstants.DEFAULT_DOUBLE
+        var i = AppConstants.DEFAULT_INT
         entityList.forEachIndexed { index, item ->
             if(amount <= item.cash.toDouble()){
                 amount = item.cash.toDouble()
                 i = index
             }
         }
-        return "${entityList[i].title}/${entityList[i].cash}"
+        return if(entityList.isNotEmpty()) "${entityList[i].title}${AppConstants.SLASH}${entityList[i].cash}" else AppConstants.EMPTY
     }
 
     private fun getMostExpDay(list:List<DayTable> = dayList):String{
-        var high = 0.0
-        var i = 0
+        var high = AppConstants.DEFAULT_DOUBLE
+        var i = AppConstants.DEFAULT_INT
         list.forEachIndexed { index, dayTable ->
             if(high <= dayTable.totalExp){
                 high = dayTable.totalExp
                 i = index
             }
         }
-        return if(i!=0) list[i].dId else ""
+        return if(list.isNotEmpty()) list[i].dId else AppConstants.EMPTY
     }
 
     private fun getMonthlyMostExpItem(list:List<DayTable> = dayList):String{
-        var high = 0.0
-        var itemName = ""
+        var high = AppConstants.DEFAULT_DOUBLE
+        var itemName = AppConstants.EMPTY
+        val firstPos = 0
+        val secondPos = 1
         list.forEach { dayTable ->
-            val parts = dayTable.mostExpItem.split("/")
-            if(high <= parts[1].toDouble()){
-                high = parts[1].toDouble()
-                itemName = parts[0]
+            val parts = dayTable.mostExpItem.split(AppConstants.SLASH)
+            if(high <= parts[secondPos].toDouble()){
+                high = parts[secondPos].toDouble()
+                itemName = parts[firstPos]
             }
         }
         return itemName
@@ -258,8 +263,7 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
             }
         }
         val stringCountMap = memberList.groupingBy { it }.eachCount()
-
-        return stringCountMap.maxByOrNull { it.value }?.key?:""
+        return stringCountMap.maxByOrNull { it.value }?.key?:AppConstants.EMPTY
     }
 
 }
