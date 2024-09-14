@@ -36,6 +36,8 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
     private val dayList = mutableListOf<DayTable>()
     private val entityList = mutableListOf<CartItemEntity>()
 
+    var todayDate = ""
+
     fun updateCartItem(item: GroceryModel, date:String){
         viewModelScope.launch {
             val dIterator = entityList.iterator()

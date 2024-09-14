@@ -50,7 +50,7 @@ fun HomeScreenUi(viewModel: CartViewModel) {
     var dateAlert by remember { mutableStateOf(false) }
     var todayDate by remember { mutableStateOf(CommonUtils.getTodayDate()) }
     var isEdit by remember { mutableStateOf(false) }
-    var dataModel by remember { mutableStateOf(GroceryModel(0,false,"","","")) }
+    var dataModel by remember { mutableStateOf(GroceryModel()) }
     viewModel.getCartItems(todayDate)
     Scaffold { padding ->
         ConstraintLayout(
@@ -139,7 +139,10 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                 end.linkTo(parent.end, margin = 10.dp)
             },viewModel = viewModel )
             if (addNewItemDialog) {
-                AddNewCartItem(isEdit = isEdit, viewModel = viewModel, date = todayDate, model = dataModel) {
+                viewModel.todayDate = todayDate
+                AddNewCartItem(isEdit = isEdit,
+                    viewModel = viewModel,
+                    model = dataModel) {
                     addNewItemDialog = false
                 }
             }

@@ -8,14 +8,16 @@ import java.util.Locale
 
 object CommonUtils {
 
-    fun splitNumericAndText(input: String): Pair<String, String> {
-        val numberPattern = Regex("\\d+(\\.\\d+)?")
-        val textPattern = Regex("[a-zA-Z]+")
+    fun splitBySeparator(input: String, separator:String): Pair<String, String> {
+        if(input.isNotEmpty()){
+            val parts = input.split(separator)
+            return Pair(parts[0], parts[1])
+        }
+        return Pair(input, input)
+    }
 
-        val numberMatch = numberPattern.find(input)?.value ?: ""
-        val textMatch = textPattern.find(input)?.value ?: ""
-
-        return Pair(numberMatch, textMatch)
+    fun isDouble(value: String): Boolean {
+        return (value.toDoubleOrNull() != null) || value.isEmpty()
     }
 
     fun validateDate(input: String): Pair<Boolean,String> {
