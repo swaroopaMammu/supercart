@@ -3,8 +3,8 @@ package com.example.mycomposeapp.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mycomposeapp.model.GroceryModel
-import com.example.mycomposeapp.model.db.entity.CartItemEntity
-import com.example.mycomposeapp.model.db.entity.DayTable
+import com.example.mycomposeapp.model.CartItemEntity
+import com.example.mycomposeapp.model.DayTable
 import com.example.mycomposeapp.model.db.entity.MonthlyTable
 import com.example.mycomposeapp.model.repository.CartRepository
 import com.example.mycomposeapp.utils.CommonUtils
@@ -26,9 +26,11 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
     var cartTotal = MutableStateFlow(0.0)
     var purchasedTotal = MutableStateFlow(0.0)
     var totalMonthlyExp = MutableStateFlow(0.0)
-    var monthlyData = MutableStateFlow(MonthlyTable(
+    var monthlyData = MutableStateFlow(
+        MonthlyTable(
         mostBought = "", mostExpDay = "", mostExpItem = "", mId = "", dayCartList = ""
-    ))
+    )
+    )
 
     private val converters = Converters()
     private val dayList = mutableListOf<DayTable>()
@@ -66,13 +68,15 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
                 mostExpItem = getMostExpItem()
             )
             dayList.add(updatedDayTable)
-            repository.updateMonthlyTable(MonthlyTable(
+            repository.updateMonthlyTable(
+                MonthlyTable(
                 mId = CommonUtils.getMonthYearFromDate(date),
                 mostBought = getMostBought(),
                 mostExpItem = getMonthlyMostExpItem(),
                 mostExpDay = getMostExpDay(),
                 dayCartList = converters.fromDayTableList(dayList)
-            ))
+            )
+            )
         }
     }
 
@@ -117,7 +121,8 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
                         cash = model.cash,
                         isPurChanged = model.isPurChanged,
                         quantity = model.quantity
-                    ))
+                    )
+                )
                 val dayData = DayTable(
                     dId = date,
                     totalExp = getTotalPurchased().first,
@@ -152,13 +157,15 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
                 }
             }.toMutableList()
 
-            repository.updateMonthlyTable(MonthlyTable(
+            repository.updateMonthlyTable(
+                MonthlyTable(
                 mId = CommonUtils.getMonthYearFromDate(date),
                 mostBought = getMostBought(updatedDayList),
                 mostExpItem = getMonthlyMostExpItem(updatedDayList),
                 mostExpDay = getMostExpDay(updatedDayList),
                 dayCartList = converters.fromDayTableList(updatedDayList)
-            ))
+            )
+            )
         }
     }
 
@@ -172,13 +179,15 @@ class CartViewModel (val repository: CartRepository) : ViewModel() {
                         mIterator.remove()
                     }
                 }
-                repository.updateMonthlyTable(MonthlyTable(
+                repository.updateMonthlyTable(
+                    MonthlyTable(
                     mId = CommonUtils.getMonthYearFromDate(date),
                     mostBought = getMostBought(),
                     mostExpItem = getMonthlyMostExpItem(),
                     mostExpDay = getMostExpDay(),
                     dayCartList = converters.fromDayTableList(dayList)
-                ))
+                )
+                )
             }
     }
 

@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CartDao {
 
-    // Insert Monthly Table
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMonthlyTable(monthlyTable: MonthlyTable)
 

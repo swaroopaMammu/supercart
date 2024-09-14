@@ -29,7 +29,8 @@ fun CartAnalysis(viewModel: CartViewModel,onDismiss:()->Unit){
         onDismiss()
     },
     ) {
-       val data by viewModel.monthlyData.collectAsState(MonthlyTable(
+       val data by viewModel.monthlyData.collectAsState(
+           MonthlyTable(
            mId = "", mostBought = "", mostExpDay = "", mostExpItem = "", dayCartList = ""
        ) )
         val totalExp by viewModel.totalMonthlyExp.collectAsState(0.0 )

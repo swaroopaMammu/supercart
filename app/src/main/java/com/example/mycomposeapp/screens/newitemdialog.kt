@@ -22,15 +22,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mycomposeapp.model.GroceryModel
-import com.example.mycomposeapp.model.db.entity.CartItemEntity
 import com.example.mycomposeapp.utils.CommonUtils
 import com.example.mycomposeapp.viewmodel.CartViewModel
+import com.example.mycomposeapp.R
+import com.example.mycomposeapp.utils.AppConstants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,16 +54,16 @@ fun AddNewCartItem(isEdit:Boolean,model: GroceryModel = GroceryModel(
             modifier = Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(isEdit)Text(text = "Edit grocery item", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            else Text(text = "New grocery item", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            if(isEdit)Text(text = stringResource(id = R.string.edit_grocery_item), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            else Text(text = stringResource(id = R.string.new_grocery_item), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
             OutlinedTextField(
                 value = itemName,
                 onValueChange = {
                     itemName = it
                 },
-                label = { Text(text = "Item name") },
+                label = { Text(text = stringResource(id = R.string.item_name)) },
                 placeholder = {
-                    Text(text = "Enter the item name")
+                    Text(text = stringResource(id = R.string.enter_the_item_name))
                 },
                 modifier = Modifier.fillMaxWidth(),
                 isError = itemName.isEmpty() && error
@@ -74,9 +76,9 @@ fun AddNewCartItem(isEdit:Boolean,model: GroceryModel = GroceryModel(
                         }
 
                     },
-                    label = { Text(text = "Quantity") },
+                    label = { Text(text = stringResource(id = R.string.quantity)) },
                     placeholder = {
-                        Text(text = "Enter the quantity")
+                        Text(text = stringResource(id = R.string.enter_the_quantity))
                     },
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Number  // Shows numeric keyboard
@@ -89,9 +91,9 @@ fun AddNewCartItem(isEdit:Boolean,model: GroceryModel = GroceryModel(
                     onValueChange = {
                         units = it
                     },
-                    label = { Text(text = "Units") },
+                    label = { Text(text = stringResource(id = R.string.unit)) },
                     placeholder = {
-                        Text(text = " Units")
+                        Text(text = stringResource(id = R.string.unit) )
                     },
                     visualTransformation = VisualTransformation.None,
                     isError = units.isEmpty() && error
@@ -104,9 +106,9 @@ fun AddNewCartItem(isEdit:Boolean,model: GroceryModel = GroceryModel(
                         price = newValue
                     }
                 },
-                label = { Text(text = "Price") },
+                label = { Text(text = stringResource(id = R.string.price)) },
                 placeholder = {
-                    Text(text = "Enter the price in ₹")
+                    Text(text = stringResource(id = R.string.enter_the_price))
                 },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default.copy(
@@ -116,7 +118,7 @@ fun AddNewCartItem(isEdit:Boolean,model: GroceryModel = GroceryModel(
                 isError = price.isEmpty() && error
             )
             if(error){
-                Text(text = "no field can be left blank", color = Color.Red)
+                Text(text = stringResource(id = R.string.no_field_can_be_left), color = Color.Red)
             }
             Spacer(modifier = Modifier.height(5.dp))
             Button(
@@ -146,10 +148,10 @@ fun AddNewCartItem(isEdit:Boolean,model: GroceryModel = GroceryModel(
                             )
                             viewModel.updateMonthlyCartItems(date, item)
 
-                            itemName = ""
-                            quantity = ""
-                            units = ""
-                            price = ""
+                            itemName = AppConstants.EMPTY
+                            quantity = AppConstants.EMPTY
+                            units = AppConstants.EMPTY
+                            price = AppConstants.EMPTY
                             onDismiss()
                         }
                     }
@@ -160,7 +162,9 @@ fun AddNewCartItem(isEdit:Boolean,model: GroceryModel = GroceryModel(
                     .padding(top = 10.dp),
                 shape = RectangleShape
             ) {
-                if(isEdit) Text(text = "UPDATE THE ROW") else Text(text = "ADD TO CART")
+                if(isEdit) Text(text = stringResource(id = R.string.update_the_row)) else Text(text = stringResource(
+                    id = R.string.add_to_cart
+                ) )
             }
         }
     }

@@ -1,7 +1,7 @@
 package com.example.mycomposeapp.utils
 import androidx.room.TypeConverter
-import com.example.mycomposeapp.model.db.entity.CartItemEntity
-import com.example.mycomposeapp.model.db.entity.DayTable
+import com.example.mycomposeapp.model.CartItemEntity
+import com.example.mycomposeapp.model.DayTable
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

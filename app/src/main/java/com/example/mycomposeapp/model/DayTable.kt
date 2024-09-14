@@ -1,4 +1,4 @@
-package com.example.mycomposeapp.model.db.entity
+package com.example.mycomposeapp.model
 
 
 data class DayTable(
