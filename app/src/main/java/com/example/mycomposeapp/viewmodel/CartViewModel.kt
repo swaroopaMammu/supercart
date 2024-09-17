@@ -40,7 +40,6 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
 
     fun updateCartItem(item: GroceryModel, date:String){
         viewModelScope.launch {
-            val dIterator = entityList.iterator()
             val entity = CartItemEntity(
                 id = item.id,
                 cash = item.cash,
@@ -48,13 +47,12 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
                 quantity = item.quantity,
                 title = item.title
             )
-            while (dIterator.hasNext()) {
-                val d = dIterator.next()
-                if (d.id == item.id) {
-                    dIterator.remove()
-                }
+            val index = entityList.indexOfFirst { it.id == item.id }
+            if (index != -1) {
+                entityList[index] = entity
+            } else {
+                entityList.add(entity)
             }
-            entityList.add(entity)
 
             val mIterator = dayList.iterator()
             while (mIterator.hasNext()) {

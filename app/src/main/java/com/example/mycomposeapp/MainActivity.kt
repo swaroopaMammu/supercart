@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
             MyComposeAppTheme {
                Surface(
                    modifier = Modifier.fillMaxSize(),
-                   color = MaterialTheme.colorScheme.background
+                   color = MaterialTheme.colorScheme.background,
                ) {
                    HomeScreenUi(viewModel)
                }

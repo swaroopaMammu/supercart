@@ -18,9 +18,11 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -51,7 +53,8 @@ fun HomeScreenUi(viewModel: CartViewModel) {
     var addNewItemDialog by remember { mutableStateOf(false) }
     var cartAnalysisDialog by remember { mutableStateOf(false) }
     var dateAlertDialog by remember { mutableStateOf(false) }
-
+    var isEdit by remember { mutableStateOf(false) }
+    var dataModel by remember { mutableStateOf(GroceryModel()) }
     var todayDate by remember { mutableStateOf(CommonUtils.getTodayDate()) }
 
     viewModel.getCartItems(todayDate)
@@ -82,10 +85,22 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                     height = Dimension.fillToConstraints
                 },
                 viewModel= viewModel,
-                date = todayDate
+                date = todayDate,
+                 {
+                    addNewItemDialog = true
+                    dataModel = it
+                    isEdit = true
+                },
+                {
+                    viewModel.updateCartItem(
+                        item = it,
+                        date = todayDate
+                    )
+                }
             )
             OutlinedButton(onClick = {
                 addNewItemDialog = true
+                isEdit = false
             },
                 border = BorderStroke(2.dp, Color.Black),
                 shape = RectangleShape,
@@ -131,8 +146,9 @@ fun HomeScreenUi(viewModel: CartViewModel) {
             },viewModel = viewModel )
 
             if (addNewItemDialog) {
-                AddNewCartItem(todayDate,isEdit = false,
-                    viewModel = viewModel) {
+                AddNewCartItem(todayDate,isEdit = isEdit,
+                    viewModel = viewModel,
+                    model = dataModel) {
                     addNewItemDialog = false
                 }
             }
@@ -221,9 +237,9 @@ private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
 
 
 @Composable
-private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String){
+private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String,
+                        oneEditClick : (model:GroceryModel)->Unit, onCheckChanged:(model:GroceryModel)->Unit){
     val gList by  viewModel.groceryEntityList.collectAsState(initial = emptyList())
-    var addNewItemDialog by remember { mutableStateOf(false) }
     val gMList : MutableList<GroceryModel> = mutableListOf()
     gList.forEach { m ->
         gMList.add(
@@ -240,27 +256,20 @@ private fun GroceryList(modifier: Modifier,viewModel: CartViewModel,date:String)
     LazyColumn(modifier = modifier
         .fillMaxWidth()
         .padding(top = 10.dp)) {
-        items(gMList) { item ->
-            GroceryListItem(item,{ addNewItemDialog = true },
+        items(gMList, key = { item -> item.id }) { item ->
+            GroceryListItem(item,
+                { oneEditClick(item) },
                 { viewModel.removeCartItem(it.id,date) },
                 {
-                    viewModel.updateCartItem(
-                        item = GroceryModel(
-                            id = item.id,
-                            isPurChanged = it,
-                            title = item.title,
-                            quantity = item.quantity,
-                            cash = item.cash
-                        ),
-                        date = date
-                    )
+                    onCheckChanged(GroceryModel(
+                        id = item.id,
+                        isPurChanged = it,
+                        title = item.title,
+                        quantity = item.quantity,
+                        cash = item.cash
+                    ))
                 }
             )
-            if (addNewItemDialog) {
-                AddNewCartItem(date = date,isEdit = true, viewModel = viewModel, model = item) {
-                    addNewItemDialog = false
-                }
-            }
         }
     }
 }
