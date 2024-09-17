@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import com.example.mycomposeapp.utils.CommonUtils
 import com.example.mycomposeapp.viewmodel.CartViewModel
 import com.example.mycomposeapp.R
@@ -276,9 +277,9 @@ private fun GroceryListItem(data:GroceryModel,oneEditClick : ()->Unit,
             handleCheck = it
             onCheckChanged(handleCheck)
         })
-            Text(text = data.title, modifier = Modifier.width(100.dp), fontWeight = FontWeight.SemiBold)
-            Text(text = data.quantity, modifier = Modifier.width(60.dp), fontWeight = FontWeight.W300)
-            Text(text = "${data.cash} ${stringResource(id = R.string.rs_symbol)}", modifier = Modifier.width(60.dp), fontWeight = FontWeight.W300,)
+            Text(text = data.title, modifier = Modifier.width(100.dp), fontWeight = FontWeight.SemiBold,  textDecoration = if(handleCheck) TextDecoration.LineThrough else TextDecoration.None)
+            Text(text = data.quantity, modifier = Modifier.width(60.dp), fontWeight = FontWeight.W300,textDecoration = if(handleCheck) TextDecoration.LineThrough else TextDecoration.None )
+            Text(text = "${data.cash} ${stringResource(id = R.string.rs_symbol)}", modifier = Modifier.width(60.dp), fontWeight = FontWeight.W300,textDecoration = if(handleCheck) TextDecoration.LineThrough else TextDecoration.None)
         IconButton(onClick = { oneEditClick() }) {
             Icon(imageVector = Icons.Rounded.Edit, contentDescription = stringResource(id = R.string.edit))
         }

@@ -145,7 +145,7 @@ fun AddNewCartItem(date:String,isEdit:Boolean,model: GroceryModel = GroceryModel
                         }else{
                             viewModel.updateMonthlyCartItems(date, GroceryModel(
                                 id = kotlin.random.Random.nextInt(),
-                                isPurChanged = true,
+                                isPurChanged = false,
                                 title = itemName,
                                 quantity = "$quantity $units",
                                 cash = price,

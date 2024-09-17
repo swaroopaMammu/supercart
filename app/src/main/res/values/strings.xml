@@ -11,7 +11,7 @@
     <string name="price">Price</string>
     <string name="enter_the_price">Enter the price in ₹</string>
     <string name="no_field_can_be_left">no field can be left blank</string>
-    <string name="update_the_row">UPDATE THE ROW</string>
+    <string name="update_the_row">UPDATE</string>
     <string name="add_to_cart">ADD TO CART</string>
     <string name="cart_monthly_analysis_of">Cart Monthly analysis of</string>
     <string name="monthly_expenses">Monthly expenses</string>
