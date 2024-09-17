@@ -30,8 +30,8 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
     private val _purchasedTotal = MutableStateFlow(0.0)
     val purchasedTotal: StateFlow<Double> = _purchasedTotal.asStateFlow()
 
-    private val _monthlyData = MutableStateFlow(MonthlyTable())
-    val monthlyData: StateFlow<MonthlyTable> = _monthlyData.asStateFlow()
+
+    var monthlyData : MonthlyTable? = MonthlyTable()
 
     private val converters = Converters()
     private val dayList = mutableListOf<DayTable>()
@@ -102,7 +102,7 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
                         _groceryEntityList.value = entityList.toList()
                         _cartTotal.value = total.second
                         _purchasedTotal.value = total.first
-                        _monthlyData.value = cartItems
+                        monthlyData = cartItems
                     }
                 }
             }

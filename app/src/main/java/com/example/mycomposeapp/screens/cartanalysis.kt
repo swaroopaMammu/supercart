@@ -31,7 +31,7 @@ fun CartAnalysis(viewModel: CartViewModel,onDismiss:()->Unit){
         onDismiss()
     },
     ) {
-       val data by viewModel.monthlyData.collectAsState(MonthlyTable() )
+       val data = viewModel.monthlyData?:MonthlyTable()
 
         Column (
             modifier = Modifier
