@@ -37,6 +37,8 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
     private val dayList = mutableListOf<DayTable>()
     private val entityList = mutableListOf<CartItemEntity>()
 
+    lateinit var todayDate :String
+
 
     fun updateCartItem(item: GroceryModel, date:String){
         viewModelScope.launch {
@@ -47,52 +49,56 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
                 quantity = item.quantity,
                 title = item.title
             )
-            val index = entityList.indexOfFirst { it.id == item.id }
+            val clonedEntityList = entityList.toMutableList()
+            val index = clonedEntityList.indexOfFirst { it.id == item.id }
             if (index != -1) {
-                entityList[index] = entity
+                clonedEntityList[index] = entity
             } else {
-                entityList.add(entity)
+                clonedEntityList.add(entity)
             }
 
-            val mIterator = dayList.iterator()
-            while (mIterator.hasNext()) {
-                val m = mIterator.next()
-                if (m.dId == date) {
-                    mIterator.remove()
-                }
-            }
             val updatedDayTable = DayTable(
                 dId = date,
-                cartItemList = entityList,
-                totalExp = getTotalPurchased().first,
-                mostExpItem = getMostExpItem()
+                cartItemList = clonedEntityList,
+                totalExp = getTotalPurchased(clonedEntityList).first,
+                mostExpItem = getMostExpItem(clonedEntityList)
             )
-            dayList.add(updatedDayTable)
+            val clonedDayList = dayList.toMutableList()
+            val index1 = clonedDayList.indexOfFirst { it.dId == date }
+            if (index1 != -1) {
+                clonedDayList[index1] = updatedDayTable
+            } else {
+                clonedDayList.add(updatedDayTable)
+            }
+
             repository.updateMonthlyTable(
                 MonthlyTable(
                 mId = CommonUtils.getMonthYearFromDate(date),
-                mostBought = getMostBought(),
-                mostExpItem = getMonthlyMostExpItem(),
-                mostExpDay = getMostExpDay(),
-                dayCartList = converters.fromDayTableList(dayList)
+                mostBought = getMostBought(clonedDayList),
+                mostExpItem = getMonthlyMostExpItem(clonedDayList),
+                mostExpDay = getMostExpDay(clonedDayList),
+                dayCartList = converters.fromDayTableList(clonedDayList),
+                totalExpense = getTotalMonthlyExp(clonedDayList)
             )
             )
         }
     }
 
     fun getCartItems(mDate:String){
+        println("mDate in getCartItems out: $mDate")
+        todayDate = mDate
             viewModelScope.launch {
                 val date1 = CommonUtils.getMonthYearFromDate(mDate)
                 repository.getMonthlyCartItems(date1).collectLatest {
                         cartItems ->
                     dayList.clear()
                     entityList.clear()
-                    if(cartItems != null){
+                    println("mDate in getCartItems in: $todayDate")
+                    println("mDate in getCartItems mDate: $mDate")
+                    cartItems?.let {
                         dayList.addAll(converters.toDayTableList(cartItems.dayCartList))
-                        dayList.forEach{
-                            if(it.dId == mDate){
-                                entityList.addAll(it.cartItemList)
-                            }
+                        dayList.find { it.dId == todayDate }?.let { day ->
+                            entityList.addAll(day.cartItemList)
                         }
                     }
                     withContext(Dispatchers.Main) {
@@ -127,7 +133,7 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
                     dId = date,
                     totalExp = getTotalPurchased().first,
                     cartItemList = entityList,
-                    mostExpItem = getMostExpItem()
+                    mostExpItem = getMostExpItem(entityList)
                 )
                 dayList.add(dayData)
                 val data = MonthlyTable(
@@ -152,7 +158,9 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
 
             val updatedDayList = dayList.map { day ->
                 if (day.dId == date) {
-                    day.copy(cartItemList = updatedEntityList)
+                    day.copy(cartItemList = updatedEntityList,
+                        totalExp = getTotalPurchased(updatedEntityList).first,
+                        mostExpItem = getMostExpItem(updatedEntityList))
                 } else {
                     day
                 }
@@ -165,7 +173,7 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
                 mostExpItem = getMonthlyMostExpItem(updatedDayList),
                 mostExpDay = getMostExpDay(updatedDayList),
                 dayCartList = converters.fromDayTableList(updatedDayList),
-                totalExpense = getTotalMonthlyExp()
+                totalExpense = getTotalMonthlyExp(updatedDayList)
             )
             )
         }
@@ -194,10 +202,10 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
             }
     }
 
-     private fun getTotalPurchased():Pair<Double,Double>{
+     private fun getTotalPurchased(list:List<CartItemEntity> = entityList):Pair<Double,Double>{
         var totalPurchased = AppConstants.DEFAULT_DOUBLE
         var totalCarted = AppConstants.DEFAULT_DOUBLE
-        entityList.forEach {
+         list.forEach {
             if(it.isPurChanged){
                 totalPurchased += it.cash.toDouble()
             }
@@ -214,7 +222,7 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
         return amount
     }
 
-    private fun getMostExpItem():String{
+    private fun getMostExpItem(entityList:List<CartItemEntity>):String{
         var amount = AppConstants.DEFAULT_DOUBLE
         var i = AppConstants.DEFAULT_INT
         entityList.forEachIndexed { index, item ->
@@ -245,7 +253,7 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
         val secondPos = 1
         list.forEach { dayTable ->
             val parts = dayTable.mostExpItem.split(AppConstants.SLASH)
-            if(high <= parts[secondPos].toDouble()){
+            if(parts.first().isNotEmpty() && (high <= parts[secondPos].toDouble())){
                 high = parts[secondPos].toDouble()
                 itemName = parts[firstPos]
             }
