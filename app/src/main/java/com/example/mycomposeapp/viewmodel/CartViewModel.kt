@@ -85,7 +85,6 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
     }
 
     fun getCartItems(mDate:String){
-        println("mDate in getCartItems out: $mDate")
         todayDate = mDate
             viewModelScope.launch {
                 val date1 = CommonUtils.getMonthYearFromDate(mDate)
@@ -93,8 +92,6 @@ class CartViewModel (private val repository: CartRepository) : ViewModel() {
                         cartItems ->
                     dayList.clear()
                     entityList.clear()
-                    println("mDate in getCartItems in: $todayDate")
-                    println("mDate in getCartItems mDate: $mDate")
                     cartItems?.let {
                         dayList.addAll(converters.toDayTableList(cartItems.dayCartList))
                         dayList.find { it.dId == todayDate }?.let { day ->
