@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -158,9 +160,10 @@ fun AddNewCartItem(date:String,isEdit:Boolean,model: GroceryModel = GroceryModel
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp),
-                shape = RectangleShape
+                shape = RectangleShape,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
             ) {
-              Text(text = buttonText)
+              Text(text = buttonText, color = Color.White)
             }
         }
     }

@@ -11,13 +11,18 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,6 +56,7 @@ fun HomeScreenUi(viewModel: CartViewModel) {
     var addNewItemDialog by remember { mutableStateOf(false) }
     var cartAnalysisDialog by remember { mutableStateOf(false) }
     var dateAlertDialog by remember { mutableStateOf(false) }
+    var userInfoDialog by remember { mutableStateOf(false) }
     var isEdit by remember { mutableStateOf(false) }
     var dataModel by remember { mutableStateOf(GroceryModel()) }
     var todayDate by remember { mutableStateOf(CommonUtils.getTodayDate()) }
@@ -100,7 +106,7 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                 addNewItemDialog = true
                 isEdit = false
             },
-                border = BorderStroke(2.dp, Color.Black),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                 shape = RectangleShape,
                 modifier = Modifier.constrainAs(button) {
                     start.linkTo(parent.start, margin = 10.dp)
@@ -112,7 +118,7 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                 Text(
                     text = stringResource(id = R.string.add_new_item),
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 16.sp
                 )
             }
@@ -120,7 +126,7 @@ fun HomeScreenUi(viewModel: CartViewModel) {
             OutlinedButton(onClick = {
                  viewModel.removeDayCart(todayDate)
             },
-                border = BorderStroke(2.dp, Color.Black),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                 shape = RectangleShape,
                 modifier = Modifier.constrainAs(delete) {
                     start.linkTo(parent.start, margin = 10.dp)
@@ -141,7 +147,11 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                 bottom.linkTo(parent.bottom, margin = 20.dp)
                 start.linkTo(parent.start, margin = 10.dp)
                 end.linkTo(parent.end, margin = 10.dp)
-            },viewModel = viewModel )
+            },viewModel = viewModel ,
+                onIconClick = {
+                    userInfoDialog = true
+                }
+                )
 
             if (addNewItemDialog) {
                 AddNewCartItem(todayDate,isEdit = isEdit,
@@ -164,13 +174,23 @@ fun HomeScreenUi(viewModel: CartViewModel) {
                     },viewModel
                 )
             }
+            if(userInfoDialog){
+                UserInfoDialog(
+                    openDialog = true,
+                    onDismissRequest = {
+                        userInfoDialog = false
+                    },
+                    title =stringResource(id = R.string.price_total_heading) ,
+                    description = stringResource(id = R.string.price_total_desciption)
+                )
+            }
 
         }
     }
 }
 
 @Composable
-private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
+private fun BottomCard(modifier:Modifier,viewModel: CartViewModel,onIconClick:()->Unit){
 
     val purchasedTotal by viewModel.purchasedTotal.collectAsState(initial = AppConstants.DEFAULT_DOUBLE)
     val cartTotal by  viewModel.cartTotal.collectAsState(initial = AppConstants.DEFAULT_DOUBLE)
@@ -179,7 +199,7 @@ private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
                  .fillMaxWidth()
                  .background(color = Color.Gray)
                  .padding(10.dp)) {
-                 val (purchased,pTotal,cart,cTotal,divider) = createRefs()
+                 val (purchased,pTotal,cart,cTotal,divider,info) = createRefs()
                  Text(text = stringResource(id = R.string.purchased_total),
                      fontWeight = FontWeight.Bold,
                      fontSize = 18.sp,
@@ -218,9 +238,17 @@ private fun BottomCard(modifier:Modifier,viewModel: CartViewModel){
                      modifier = Modifier.constrainAs(cart){
                          start.linkTo(parent.start,margin = 10.dp)
                          bottom.linkTo(parent.bottom)
-                         end.linkTo(cTotal.end)
                          width = Dimension.fillToConstraints
                      })
+                 IconButton(onClick = { onIconClick() },
+                     modifier = Modifier.constrainAs(info){
+                         start.linkTo(cart.end)
+                         top.linkTo(cart.top)
+                         bottom.linkTo(cart.bottom)
+                     }
+                 ) {
+                     Icon(imageVector = Icons.Outlined.Info, contentDescription = "user info")
+                 }
                  Text(text = "$cartTotal",
                      fontWeight = FontWeight.Bold,
                      fontSize = 12.sp,

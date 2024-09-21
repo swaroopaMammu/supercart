@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,8 +67,9 @@ fun DateInputDialog(
                         }else{
                             error = true
                         }
-                    }, shape = RectangleShape) {
-                        Text(stringResource(id = R.string.done))
+                    }, shape = RectangleShape,
+                       colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+                        Text(text = stringResource(id = R.string.done,), color = Color.White)
                     }
                 }
             }

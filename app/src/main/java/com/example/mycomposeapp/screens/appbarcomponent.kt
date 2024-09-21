@@ -10,6 +10,7 @@ import androidx.compose.material.icons.rounded.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -42,7 +43,7 @@ fun AppBar(modifier: Modifier, cartClick:()->Unit, dateClick:()->Unit, date:Stri
                 )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = AppBarBlue),
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
         actions = {
             IconButton(onClick = { cartClick() }) {
                 Icon(imageVector = Icons.Rounded.ShoppingCart, contentDescription = stringResource(id = R.string.shopping_cart), tint = IconWhite)

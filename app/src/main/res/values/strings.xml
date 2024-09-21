@@ -32,4 +32,7 @@
     <string name="rs_symbol">₹</string>
     <string name="cart_total">Cart total</string>
     <string name="purchased_total">Purchased total</string>
+    <string name="price_total_heading">About total price</string>
+    <string name="ok_button">OK</string>
+    <string name="price_total_desciption">Purchased total is the total amount for items checked in cart.\nCart total is the total amount of items added to cart</string>
 </resources>
